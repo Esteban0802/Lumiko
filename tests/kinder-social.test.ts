@@ -1,0 +1,7 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {socialLessons,socialTasks} from '../lib/kinder-social';
+import {kinderPath} from '../lib/kinder-path';
+import {schoolLessons,restoreStudy} from '../lib/school-content';
+test('social lessons provide varied situations, consequences and no single correct emotion',()=>{assert.equal(socialLessons.length,4);const scenes=new Set<string>();for(const lesson of socialLessons){assert.equal(lesson.area,'Emociones y convivencia');for(let v=0;v<20;v++){const tasks=socialTasks(lesson.id,v);assert.equal(tasks.length,6);assert.equal(new Set(tasks.map(t=>t.scene)).size,6);for(const t of tasks){scenes.add(t.scene);assert.ok(t.feelingPrompt&&t.conversation);assert.equal(t.actions.length,3);assert.equal(new Set(t.actions.map(a=>a.label)).size,3);assert.ok(t.actions.every(a=>a.label&&a.consequence));assert.ok(!('answer' in t));}}}assert.equal(scenes.size,32);});
+test('all kindergarten activities appear once in their correct area and old progress survives',()=>{const ids=Object.values(kinderPath).flatMap(groups=>groups.flatMap(g=>g.ids));assert.equal(ids.length,40);assert.equal(new Set(ids).size,40);for(const [area,groups] of Object.entries(kinderPath))for(const id of groups.flatMap(g=>g.ids))assert.equal(schoolLessons.find(l=>l.id===id)?.area,area);assert.deepEqual(restoreStudy({completed:['k-initial','k-feelings'],cycles:{'k-dictation':[1,2]}}),{completed:['k-feelings','k-initial'],cycles:{'k-dictation':[1,2]}});});

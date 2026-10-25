@@ -1,0 +1,5 @@
+'use client';
+import {kinderAreas,journeyAccess} from '../lib/kinder-journey';
+import ExplorerMap from './ExplorerMap';
+import type {SchoolLesson} from '../lib/school-content';
+export default function KinderSubjects({completed,ready,onChoose}:{completed:string[];ready:boolean;onChoose:(area:SchoolLesson['area'])=>void}){return <div className="kinder-journey explorer-journey"><div className="journey-map-heading"><div><p className="eyebrow">CUATRO DESTINOS PARA DESCUBRIR</p><h1>El mapa de Kínder</h1><p>Camina hasta una asignatura para descubrir su recorrido.</p></div></div><ExplorerMap mapId="kinder-subjects" destinations={kinderAreas.map(area=>{const stops=journeyAccess(completed,area);return {id:area,title:area,detail:stops.filter(s=>s.completed).length+' de '+stops.length+' completadas',locked:!ready};})} onSelect={id=>onChoose(id as SchoolLesson['area'])}/><p className="journey-map-help">Todas las asignaturas están disponibles. Dentro de cada una, completar una actividad abre la siguiente.</p></div>;}

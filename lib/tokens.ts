@@ -1,0 +1,1 @@
+export const tokens:Record<string,string>={tren:'🚂',auto:'🚗',avión:'✈️',tambor:'🥁',campana:'🔔',maraca:'🪇',balón:'🏀',cometa:'🪁',barco:'⛵',lápiz:'✏️',cubo:'🧊',caramelo:'🍬',pelota:'⚽',botón:'🔘',hoja:'🍃',sol:'☀️',gota:'💧',flor:'🌼',luna:'🌙',estrella:'⭐',manzana:'🍎',pera:'🍐',uva:'🍇',pez:'🐟',gato:'🐱',pato:'🦆'};

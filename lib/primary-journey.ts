@@ -1,0 +1,2 @@
+import {primaryLessons,Grade,PrimarySubject} from './primary-plan';
+export function primaryJourneyAccess(completed:readonly string[],grade:Grade,subject:PrimarySubject){const list=primaryLessons.filter(l=>l.grade===grade&&l.subject===subject),done=new Set(completed),first=list.findIndex(l=>!done.has(l.id)),frontier=first<0?list.length:first;return list.map((lesson,index)=>({lesson,index,completed:done.has(lesson.id),available:index<=frontier||done.has(lesson.id),current:index===first}));}

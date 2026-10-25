@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {activities} from '../lib/content';
+import {schoolLessons,StudyTask} from '../lib/school-content';
+import {schoolVariant,adventureVariant} from '../lib/practice-variants';
+
+function signature(t:StudyTask):string|undefined{if(t.kind!=='choice')return;return JSON.stringify([t.prompt,t.answer,t.visual||null,t.passage||null]);}
+test('school no longer shares complete exercises with adventures across replay banks',()=>{const adventureTasks=new Set<string>(),adventureStories=new Set<string>();for(let v=0;v<12;v++)for(const base of activities){const a=adventureVariant(base,v);if(a.story)adventureStories.add(a.story);for(const q of a.questions)adventureTasks.add(JSON.stringify([q.prompt,q.answer,q.visual||null,a.story||null]));}for(let v=0;v<12;v++)for(const l of schoolLessons)for(const t of schoolVariant(l,v)){const s=signature(t);if(s)assert.ok(!adventureTasks.has(s),l.id+' duplicated exercise');if(t.kind==='choice'&&t.passage)assert.ok(!adventureStories.has(t.passage),l.id+' shared story');}});
+
+test('school grouping and ordering require construction rather than adventure selection',()=>{for(let v=0;v<12;v++){for(const t of schoolVariant(schoolLessons.find(l=>l.id==='k-classification')!,v)){assert.equal(t.kind,'group');if(t.kind!=='group')continue;const expected=t.items.map((o,i)=>Object.entries(t.rule).every(([k,value])=>o[k as keyof typeof o]===value)?i:-1).filter(i=>i>=0);assert.deepEqual(t.matches,expected);assert.ok(t.matches.length>1&&t.matches.length<t.items.length);}for(const t of schoolVariant(schoolLessons.find(l=>l.id==='k-seriation')!,v)){assert.equal(t.kind,'sort');if(t.kind!=='sort')continue;assert.deepEqual(new Set(t.items.map(o=>o.size)),new Set(['small','medium','large']));assert.equal(new Set(t.items.map(o=>o.shape)).size,1);assert.equal(new Set(t.items.map(o=>o.color)).size,1);}}});
+
+test('school word problems consistently use their own objects and correct arithmetic',()=>{for(let v=0;v<12;v++)for(const t of schoolVariant(schoolLessons.find(l=>l.id==='k-problems')!,v)){assert.equal(t.kind,'choice');if(t.kind!=='choice'||t.visual?.kind!=='operation')continue;assert.ok(t.visual.token);assert.ok(!t.prompt.includes('semillas'));const {start,change,action}=t.visual;assert.equal(Number(t.answer),action==='add'?start+change:start-change);assert.ok(Number(t.answer)>=0&&Number(t.answer)<=10);}});

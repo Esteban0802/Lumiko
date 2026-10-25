@@ -1,0 +1,3 @@
+export const rhymeEndings:Record<string,string>={gato:'ato',luna:'una',ratón:'ón',camión:'ón',ventana:'ana',sombrero:'ero',queso:'eso',canción:'ón',zapato:'ato',ardilla:'illa',conejo:'ejo',cuna:'una',león:'ón',oveja:'eja',foca:'oca',lana:'ana',martillo:'illo',paleta:'eta',ratito:'ito',amarillo:'illo',cereza:'eza',cangrejo:'ejo',cocina:'ina',corona:'ona'};
+export const rhymePictures:Record<string,string>={sol:'☀️',pez:'🐟',flor:'🌼',ratón:'🐭',botón:'🔘',camión:'🚚',ventana:'🪟',sombrero:'👒',cartero:'📬',canción:'🎶',corazón:'❤️',ardilla:'🐿️',conejo:'🐰',espejo:'🪞',león:'🦁',melón:'🍈',roca:'🪨',campana:'🔔',martillo:'🔨',paleta:'🍭',maleta:'🧳',ratito:'⏳',patito:'🦆',amarillo:'🟡',cepillo:'🪥',cereza:'🍒',cabeza:'👤',cangrejo:'🦀',cocina:'🍳',gallina:'🐔',corona:'👑',leona:'🦁'};
+

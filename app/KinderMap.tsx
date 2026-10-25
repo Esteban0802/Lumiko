@@ -1,0 +1,5 @@
+'use client';
+import {journeyAccess} from '../lib/kinder-journey';
+import ExplorerRoute from './ExplorerRoute';
+import type {SchoolLesson} from '../lib/school-content';
+export default function KinderMap({area,completed,ready,onChoose}:{area:SchoolLesson['area'];completed:string[];ready:boolean;onChoose:(lesson:SchoolLesson)=>void}){const stops=journeyAccess(completed,area);return <div className="kinder-journey explorer-journey"><div className="journey-map-heading"><div><p className="eyebrow">KÍNDER · TU CAMINO CON LUMI</p><h1>{area}</h1><p>Camina a una actividad disponible. Al completarla se abre la siguiente.</p></div></div><div className="journey-map-legend"><span>✓ Completada</span><span>✦ Disponible</span><span>🔒 Por descubrir</span><b>{stops.filter(s=>s.completed).length} de {stops.length} completadas</b></div><ExplorerRoute key={area} mapId={'kinder-'+area} destinations={stops.map(s=>({id:s.lesson.id,title:s.lesson.title,number:s.index+1,completed:s.completed,locked:!ready||!s.available}))} onSelect={id=>{const stop=stops.find(s=>s.lesson.id===id);if(ready&&stop?.available)onChoose(stop.lesson);}}/></div>;}

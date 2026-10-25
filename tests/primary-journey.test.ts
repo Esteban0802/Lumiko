@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {primaryJourneyAccess} from '../lib/primary-journey';
+import {primaryLessons,Grade,PrimarySubject} from '../lib/primary-plan';
+const grades:Grade[]=[1,2,3,4,5,6],subjects:PrimarySubject[]=['Lenguaje','Matemática'];
+test('primary maps cover all sixty lessons once across six courses and two subjects',()=>{const ids:string[]=[];for(const grade of grades)for(const subject of subjects){const stops=primaryJourneyAccess([],grade,subject);assert.equal(stops.length,5);assert.equal(stops.filter(s=>s.available).length,1);ids.push(...stops.map(s=>s.lesson.id));}assert.equal(new Set(ids).size,60);assert.deepEqual(new Set(ids),new Set(primaryLessons.map(l=>l.id)));});
+test('primary unlock follows every subject prefix without opening other course paths',()=>{for(const grade of grades)for(const subject of subjects){const list=primaryJourneyAccess([],grade,subject);for(let n=0;n<=5;n++){const completed=list.slice(0,n).map(s=>s.lesson.id),stops=primaryJourneyAccess(completed,grade,subject);assert.equal(stops.filter(s=>s.available).length,Math.min(n+1,5));for(const other of grades)for(const topic of subjects)if(other!==grade||topic!==subject)assert.equal(primaryJourneyAccess(completed,other,topic).filter(s=>s.available).length,1);}}});
+test('old primary completions remain replayable without skipping missing earlier lessons',()=>{const list=primaryJourneyAccess([],3,'Lenguaje'),stops=primaryJourneyAccess([list[3].lesson.id],3,'Lenguaje');assert.equal(stops[0].available,true);assert.equal(stops[1].available,false);assert.equal(stops[3].completed,true);assert.equal(stops[3].available,true);assert.equal(stops[4].available,false);});

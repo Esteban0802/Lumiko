@@ -1,0 +1,6 @@
+'use client';
+import {useRef,useState} from 'react';
+export function WritingBoard(){
+ const [lines,setLines]=useState<string[]>([]);const active=useRef<number|null>(null);
+ return <div className="writing-board"><svg viewBox="0 0 600 240" role="img" aria-label="Pizarra para escribir con dedo, lápiz táctil o ratón. También puedes escribir en papel." onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);active.current=e.pointerId;const r=e.currentTarget.getBoundingClientRect();setLines(old=>[...old,`${(e.clientX-r.left)*600/r.width},${(e.clientY-r.top)*240/r.height}`]);}} onPointerMove={e=>{if(active.current!==e.pointerId)return;const r=e.currentTarget.getBoundingClientRect();const point=`${(e.clientX-r.left)*600/r.width},${(e.clientY-r.top)*240/r.height}`;setLines(old=>old.map((line,i)=>i===old.length-1?line+' '+point:line));}} onPointerUp={()=>{active.current=null;}} onPointerCancel={()=>{active.current=null;}}><path d="M10 80H590M10 160H590" stroke="#d4d8ca" strokeDasharray="6 6"/>{lines.map((points,i)=><polyline key={i} points={points} fill="none" stroke="#324f4b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>)}</svg><button className="quiet" onClick={()=>setLines([])}>Borrar pizarra</button><p className="small">También puedes usar lápiz y papel. La escritura queda solo en esta pantalla.</p></div>;
+}

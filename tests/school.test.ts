@@ -1,0 +1,22 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {schoolLessons,selectStudyRound,restoreStudy,wordBank} from '../lib/school-content';
+
+test('school plan preserves syllabus topics and adds phonics and discovery activities',()=>{assert.equal(schoolLessons.length,40);assert.equal(new Set(schoolLessons.map(l=>l.id)).size,40);assert.equal(schoolLessons.filter(l=>l.area==='Lenguaje').length,15);assert.equal(schoolLessons.filter(l=>l.area==='Matemática').length,13);assert.equal(schoolLessons.filter(l=>l.area==='Habilidades').length,8);for(const l of schoolLessons){assert.ok(l.topic&&l.intro&&l.example);assert.ok(l.tasks.length);for(const t of l.tasks)if(t.kind==='choice'){assert.equal(t.options.filter(([label])=>label===t.answer).length,1,l.id);assert.equal(new Set(t.options.map(([label])=>label)).size,t.options.length);assert.ok(t.hint&&t.explanation);}}});
+
+test('word dictation covers the entire Spanish alphabet including ñ',()=>{assert.deepEqual(wordBank.slice(0,27).map(([letter])=>letter),[...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ']);assert.equal(new Set(wordBank.map(([,word])=>word)).size,81);for(const [letter,word] of wordBank)assert.ok(word.toLocaleUpperCase('es').includes(letter));const lesson=schoolLessons.find(l=>l.id==='k-dictation')!;assert.equal(lesson.randomBatch,5);assert.deepEqual(lesson.tasks.map(t=>t.kind==='draw'?t.dictation:undefined),wordBank.map(([,word])=>word));});
+
+test('dictation rounds visit every item before repeating, across cycle boundaries',()=>{for(const total of [81,21]){let seen:number[]=[];let seed=42;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/2**32;};const sequence:number[]=[];for(let round=0;round<40;round++){const result=selectStudyRound(total,5,seen,random);assert.equal(result.selected.length,5);assert.equal(new Set(result.selected).size,5);sequence.push(...result.selected);seen=result.seen;}for(let offset=0;offset+total<=sequence.length;offset+=total)assert.equal(new Set(sequence.slice(offset,offset+total)).size,total);}});
+
+test('round selection sanitizes stored history and handles small banks',()=>{assert.deepEqual(selectStudyRound(3,5,[-1,100,0,0,NaN],()=>0).selected,[1,2,0]);assert.deepEqual(selectStudyRound(0,5,[],()=>0).selected,[]);});
+
+test('school progress accepts only known topic ids and valid rotation indices',()=>{assert.deepEqual(restoreStudy(null),{completed:[],cycles:{}});const restored=restoreStudy({completed:['k-name','k-name','unknown'],cycles:{'k-dictation':[0,26,81,-1,'1',0],'unknown':[1]}});assert.deepEqual(restored.completed,['k-name']);assert.deepEqual(restored.cycles,{'k-dictation':[0,26]});});
+
+test('school quantities include every number from 10 through 20',()=>{const tasks=schoolLessons.find(l=>l.id==='k-quantity')!.tasks;assert.deepEqual(tasks.map(t=>t.kind==='choice'&&t.visual?.kind==='count'?t.visual.amount:undefined),Array.from({length:11},(_,i)=>10+i));for(const t of tasks)if(t.kind==='choice'&&t.visual?.kind==='count')assert.equal(Number(t.answer),t.visual.amount);const dictation=schoolLessons.find(l=>l.id==='k-numberdictation')!;assert.deepEqual(dictation.tasks.map(t=>t.kind==='number'?t.value:undefined),Array.from({length:21},(_,i)=>i));});
+
+test('symmetry targets reflect the fixed left half exactly',()=>{for(const t of schoolLessons.find(l=>l.id==='k-symmetry')!.tasks){assert.equal(t.kind,'grid');if(t.kind!=='grid')continue;assert.ok(t.preset);const mirrored=t.preset!.map(i=>Math.floor(i/t.size)*t.size+t.size-1-i%t.size);assert.deepEqual(new Set(t.target),new Set([...t.preset!,...mirrored]));for(const i of t.preset!)assert.ok(i%t.size<t.size/2);}});
+
+test('school tasks use complete grids and four distinct sequence images',()=>{for(const lesson of schoolLessons)for(const t of lesson.tasks){if(t.kind==='grid'){assert.equal(new Set(t.target).size,t.target.length);assert.ok(t.target.every(i=>i>=0&&i<t.size**2));}if(t.kind==='sequence'){assert.equal(t.cards.length,4);assert.equal(new Set(t.cards.map(c=>c[0])).size,4);}}});
+
+test('syllabic targets and AB/AAB/ABB/ABC are represented',()=>{const syllables=schoolLessons.find(l=>l.id==='k-syllabic')!.tasks;assert.equal(syllables.length,6);assert.ok(syllables.every(t=>t.kind==='choice'&&t.prompt.includes('sílaba')));const patterns=schoolLessons.find(l=>l.id==='k-patterns')!.tasks;assert.deepEqual(patterns.map(t=>t.kind==='choice'&&t.visual?.kind==='pattern'?t.visual.unit:undefined),[['tren','auto'],['tren','tren','auto'],['tren','auto','auto'],['tren','auto','avión']]);});
+
