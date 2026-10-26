@@ -1,6 +1,6 @@
 # Lumiko · primera aventura
 
-Prototipo web en español con actividades de kínder y una selección inicial de Lenguaje y Matemática de 1.º a 6.º básico. Next.js 15 + React 19 + TypeScript; Phaser 3 se carga solo en el cliente. Se exporta como sitio estático, sin Firebase, cuentas ni servidor de datos.
+Prototipo web en español con actividades de kínder y una selección inicial de Lenguaje y Matemática de 1.º a 6.º básico. Next.js 15 + React 19 + TypeScript; Phaser 3 se carga solo en el cliente. Se exporta como sitio estático. Las cuentas familiares usan Firebase Authentication y los perfiles y avances se guardan en Cloud Firestore cuando se completa la configuración de FIREBASE.md.
 
 ## Instalar y ejecutar
 
@@ -47,7 +47,7 @@ Las pruebas de `tests/world.test.ts` y `tests/content.test.ts` verifican rutas, 
 - Sustituir emojis por ilustraciones originales coherentes y ampliar animaciones de caminata/dirección.
 - Añadir estilos de cabello (ahora cambia el color), más misiones y navegación completa por teclado en el mundo.
 - Guardar misiones en curso; panel adulto y borrado desde interfaz si se amplía la persistencia.
-- Firebase y sincronización entre dispositivos solo cuando se definan consentimiento y modelo de datos.
+- Completar la configuración y validación real de los perfiles y la sincronización de Firebase; ver FIREBASE.md.
 - Voz de bienvenida y ayuda completa para quienes todavía no leen.
 
 No es una plataforma educativa completa ni una evaluación de desempeño infantil.
@@ -295,3 +295,45 @@ Mi explorador abre un estudio con pestañas Apariencia, Ropa y Accesorios, y vis
 ## Publicación en GitHub Pages
 
 El proyecto incluye .github/workflows/pages.yml para ejecutar las pruebas, compilar la exportación estática y publicar out/ desde la rama main. La ruta del repositorio se obtiene de la configuración de Pages mediante NEXT_PUBLIC_BASE_PATH; el entorno local mantiene su ruta habitual. El enlace de inicio respeta esa subcarpeta. Instrucciones de creación del repositorio y activación en PUBLICAR_GITHUB.md. La primera publicación requiere crear el repositorio, subir el código y seleccionar GitHub Actions como fuente de Pages.
+
+## Cuentas del apoderado · primera etapa
+
+El encabezado incluye Cuenta del apoderado, con registro por correo y contraseña, inicio/cierre de sesión y recuperación de contraseña mediante Firebase Authentication (proyecto lumiko-4b996). La biblioteca se carga únicamente en el navegador y el panel se descarga por separado de la bienvenida. La configuración web de lib/firebase.ts es pública; no contiene credenciales de administrador.
+
+Configuración externa necesaria: habilitar Correo electrónico/contraseña en Firebase Authentication. En Authentication > Configuración > Dominios autorizados, agregar esteban0802.github.io y localhost para las pruebas locales si no figuran. No incluir rutas como /Lumiko/ en esa lista.
+
+Esta etapa solo autentica al adulto. Todavía no hay perfiles infantiles ni guardado remoto: avatar y progreso siguen en las claves locales existentes y cerrar sesión no los elimina. No se debe interpretar el acceso a una cuenta como aislamiento de progreso entre familias en un navegador compartido. La sincronización y las reglas privadas de Firestore se implementarán en la siguiente etapa. No se crean cuentas reales como parte de las pruebas automáticas.
+
+## Landing y acceso en páginas independientes
+
+La ruta / presenta Lumiko, sus niveles y actividades. /ingresar/, /registro/ y /recuperar/ contienen formularios independientes de Firebase Authentication; después de acceder o registrarse se navega a /cuenta/. /aventura/ conserva el prototipo y su progreso local, con acceso sin cuenta desde la landing. No es un área protegida ni hay perfiles infantiles todavía: el aislamiento de datos y la sincronización requieren la siguiente etapa con Firestore. Las rutas se exportan como carpetas estáticas y los enlaces respetan basePath en GitHub Pages.
+
+## Panel familiar y progreso individual
+
+/cuenta/ es ahora el panel del apoderado: permite crear perfiles con apodo y etapa, consultar actividades practicadas y pendientes por asignatura, y comenzar la aventura del perfil elegido. No se solicita correo infantil. Firebase Authentication identifica al apoderado; Firestore guarda cada perfil bajo su UID y las reglas de firestore.rules limitan el acceso a esa familia. La aventura carga el documento antes de mostrar el personaje y utiliza almacenamiento independiente para su progreso, conservando el modo invitado anterior. No se importa progreso de invitado automáticamente.
+
+**Configuración externa pendiente:** crear Cloud Firestore (default) en modo producción y publicar firestore.rules. Ver FIREBASE.md para pasos, modelo de datos, recuperación de guardados pendientes y comprobaciones reales. El archivo de reglas local no cambia la consola ni garantiza que las reglas estén publicadas. Las estadísticas son prácticas registradas, no notas ni medidas de dominio. Aún no hay acceso infantil con PIN, borrado de perfiles ni exportación de estadísticas.
+
+
+
+## Tarjetas y edición de perfiles
+
+El panel familiar muestra el avatar guardado de cada explorador (con apariencia inicial si falta) y ofrece Editar perfil. El formulario permite cambiar apodo y etapa, guardar o cancelar. updateDoc actualiza únicamente name, level y updatedAt, sin reemplazar los registros del personaje ni del progreso. La edición utiliza las reglas de propietario ya existentes; no requiere publicar reglas nuevas. El cambio de etapa filtra las estadísticas visibles y conserva los registros de todos los niveles.
+
+## Resumen familiar y sugerencias
+
+Ver avance muestra el recorrido de la etapa registrada: total practicado y porcentaje, listas de actividades practicadas y pendientes por asignatura, y una sugerencia de la asignatura con menor proporción de avance (primera pendiente según el orden existente). El enlace abre la introducción de la actividad con el perfil seleccionado. La aplicación vuelve a comprobar sus desbloqueos al cargar el progreso; no permite saltarse un candado cambiando la URL. Si todo está practicado, invita a repetir. No son recomendaciones diagnósticas ni mediciones de aprendizaje.
+
+## Retomar la última parada
+
+Continuar mi aventura recuerda en este navegador el último mapa, asignatura o introducción de actividad de Kínder/Básica. La clave de ubicación distingue UID del apoderado y perfil, con una clave aparte para invitado. Los enlaces de actividad sugerida tienen prioridad y el acceso se vuelve a validar con los desbloqueos existentes. Al terminar una actividad se recuerda su mapa. La ubicación no se sincroniza entre dispositivos y una práctica incompleta se reinicia desde la introducción; no se guardan preguntas ni respuestas a medias.
+
+## Confirmación del adulto al volver del juego
+
+Antes de montar el panel y sus consultas a Firestore, /cuenta/ comprueba la sesión y una confirmación temporal del adulto. El registro/inicio de sesión exitoso permite continuar al panel; abrir una aventura revoca esa confirmación en la pestaña. Al regresar se solicita la contraseña y Firebase la verifica con reauthenticateWithCredential. No se guarda la contraseña. La confirmación permite volver al panel durante diez minutos en esa pestaña, siempre que no se abra la aventura; una nueva entrada posterior al plazo vuelve a pedirla.
+
+Esta confirmación evita entradas accidentales a la interfaz del apoderado. No crea un rol infantil ni cambia la autorización del servidor: el juego sigue usando la sesión familiar y las reglas por UID. No es un control contra manipulación del navegador. El PIN infantil y las sesiones con permisos de servidor separados siguen pendientes. No requiere modificar reglas de Firestore.
+
+## Landing orientada a familias
+
+La presentación pública incluye nueva portada, beneficios concretos, muestra interactiva de sílabas/conteo/patrones, detalle de Kínder y Básica, vista ilustrativa del panel familiar (datos de ejemplo identificados), tres pasos para comenzar, seis preguntas frecuentes y accesos al registro, ingreso y exploración sin cuenta. No se añaden testimonios ni promesas de resultados. La muestra es independiente y no registra progreso ni utiliza Firebase. El diseño conserva los SVG de Lumi y el explorador, tiene estilos propios de landing y contempla movimiento reducido.

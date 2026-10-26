@@ -328,3 +328,39 @@ El botón de avance se muestra desde el inicio, desactivado hasta acertar, con u
 ## Preparación de GitHub Pages
 
 63 pruebas correctas. Compilación estática bajo /lumiko/ completada. Edge sobre un servidor estático local montado en /lumiko/: bienvenida, editor, mapa Phaser, asignaturas, actividades, entrada a sonidos iniciales y regreso por el logo. No hubo respuestas 404 en los archivos de la aplicación ni errores de ejecución. La configuración de despliegue sigue el flujo oficial configure-pages, upload-pages-artifact y deploy-pages. Publicación remota pendiente de crear y conectar el repositorio; no se verificó todavía una URL pública.
+
+## Primera etapa de cuentas Firebase
+
+63 pruebas existentes y revisión de tipos correctas. Compilación estática con /Lumiko/ correcta. Edge local sobre la exportación: abrir/cerrar panel, cambiar entre registro/acceso/recuperación, rechazar confirmación distinta sin llamar a Firebase, adaptar a 320 px sin desbordamiento y continuar al editor del explorador. Sin errores de ejecución. No se crearon usuarios ni se enviaron correos en las pruebas; registro real, persistencia de sesión, cierre y recuperación requieren verificación con el proveedor habilitado. Perfiles y sincronización Firestore pendientes. npm audit tras actualizar @grpc/grpc-js mediante override: cero vulnerabilidades conocidas. No publicado en GitHub en esta etapa.
+
+## Landing y rutas de acceso
+
+63 pruebas existentes correctas; compilación estática con /Lumiko/ y siete rutas correctas. Edge sobre exportación local: landing → ingreso → registro, recarga directa de registro, confirmación de contraseña rechazada localmente, recuperación, regreso a landing y acceso al editor mediante Explorar sin cuenta. Páginas a 320 px sin desbordamiento horizontal ni errores de ejecución en el recorrido. Capturas de landing de escritorio y recuperación móvil revisadas. No se enviaron correos ni se registraron usuarios reales; comprobación real de Firebase y perfiles Firestore pendientes. Cambios no publicados.
+
+## Panel familiar y progreso por niño
+
+66 pruebas correctas y revisión de tipos correcta. Nuevas pruebas: perfiles vacíos sin herencia del invitado, unión de finalizaciones concurrentes sin duplicados/IDs desconocidos, estadísticas independientes por niño y asignatura. Compilación estática con /Lumiko/ correcta. Edge sobre exportación: /cuenta/ sin sesión ofrece ingreso; /aventura/?perfil=otro-perfil exige sesión y no abre la aventura; modo invitado abre editor y conserva personaje tras recarga. Comprobación a 320 px sin desbordamiento ni errores de ejecución. No se crearon usuarios ni perfiles reales. La creación de Firestore, publicación de reglas, validación de reglas en simulador/emulador, aislamiento entre dos cuentas y sincronización entre dispositivos siguen pendientes de la configuración de consola. No se afirma que las reglas locales estén desplegadas. Ver FIREBASE.md.
+
+## Espera de conexión del panel familiar
+
+El panel limita a 12 segundos la espera inicial del servidor. Una respuesta solo de caché no habilita crear perfiles ni se presenta como familia vacía; al vencer la espera aparece orientación de configuración y Reintentar conexión. Si el servidor se recupera, el listado se actualiza y el error desaparece. La recarga de conexión conserva el apodo ingresado. 66 pruebas existentes, revisión de tipos y compilación estática correctas. No se verificó aún el servicio real ni se reprodujo una sesión autenticada remota en esta revisión.
+
+## Tarjetas de exploradores y edición
+
+67 pruebas existentes y revisión de tipos correctas. La compilación estática con /Lumiko/ es correcta. Revisión de implementación: avatar recuperado con restoreAvatar; edición limitada a apodo, etapa y fecha de actualización; cancelación sin escritura; mensaje de éxito tras confirmación de Firestore y errores manteniendo el formulario. Esta revisión no creó ni modificó perfiles reales en Firebase; la comprobación visual autenticada y persistencia del cambio en la cuenta del usuario quedan para la prueba local.
+
+## Resumen del avance y actividad sugerida
+
+69 pruebas correctas y compilación estática con /Lumiko/ correcta. Pruebas nuevas para sugerencias según etapa, progreso antiguo fuera de orden, desbloqueos y recorrido completo sin pendientes inventadas. Edge sobre exportación: enlace directo a sonidos iniciales abre introducción y práctica; enlace a dictado bloqueado muestra su mapa sin abrir el ejercicio; enlace a relato de primero básico abre la introducción correcta. Sin errores de ejecución ni escrituras remotas. Visualización autenticada de las nuevas estadísticas pendiente de revisión del usuario.
+
+## Última parada por explorador
+
+71 pruebas correctas y compilación estática correcta. Nuevas pruebas: ubicación saneada, etapas/cursos/actividades conocidas, independencia por familia/perfil/invitado, datos corruptos y almacenamiento bloqueado. Edge sobre exportación /Lumiko/: abrir actividad inicial de Kínder y relato de primero básico, salir a /aventura/ y comprobar que Continuar mi aventura recupera cada introducción. Sin errores de ejecución ni escrituras remotas. El aislamiento de claves se verificó con almacenamiento simulado; no se probaron perfiles autenticados reales en este recorrido. Prácticas incompletas y sincronización de ubicación quedan fuera del alcance.
+
+## Confirmación del apoderado
+
+72 pruebas correctas. Prueba nueva: confirmación temporal por UID, caducidad, revocación al jugar, aislamiento de otra cuenta y almacenamiento bloqueado. Revisión de tipos y compilación estática correctas. La reautenticación usa la contraseña con Firebase y no monta el panel mientras falta confirmación. No se introdujeron credenciales reales en las pruebas: regreso desde una aventura autenticada y validación de contraseña correcta/incorrecta pendientes de prueba local del usuario. La confirmación es una medida de interfaz, no autorización infantil independiente en servidor.
+
+## Landing para familias
+
+Revisión de tipos y compilación estática con /Lumiko/ correctas. Edge: tres muestras interactivas, alternativa incorrecta y correcta, cambio de muestra, apertura de FAQ y enlace a registro. Anchos 320, 390, 768 y 1366 sin desbordamiento horizontal ni errores de ejecución. Capturas de página completa de escritorio, portada móvil y bloque familiar revisadas visualmente. No se crearon cuentas ni se enviaron escrituras a Firebase. Contadores de actividades y datos ilustrativos del panel se revisaron contra el contenido actual. No publicado en GitHub.

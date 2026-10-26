@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+  function validChild(d) {
+   return d.keys().hasAll(['name','level','createdAt','updatedAt','main','kinder','basic'])
+    && d.keys().hasOnly(['name','level','createdAt','updatedAt','main','kinder','basic'])
+    && d.name is string && d.name.size() > 0 && d.name.size() <= 40
+    && d.level in ['Kínder','1.º básico','2.º básico','3.º básico','4.º básico','5.º básico','6.º básico']
+    && d.createdAt is timestamp && d.updatedAt == request.time
+    && d.main is map && d.main.keys().hasOnly(['version','avatar','completed','stars'])
+    && d.main.version == 1 && d.main.avatar is map && d.main.avatar.size() <= 16
+    && d.main.completed is list && d.main.completed.size() <= 8
+    && d.main.stars is int && d.main.stars == d.main.completed.size()
+    && d.kinder is map && d.kinder.keys().hasOnly(['completed','cycles'])
+    && d.kinder.completed is list && d.kinder.completed.size() <= 40
+    && d.kinder.cycles is map && d.kinder.cycles.size() <= 40
+    && d.basic is map && d.basic.keys().hasOnly(['completed','rounds','recent'])
+    && d.basic.completed is list && d.basic.completed.size() <= 60
+    && d.basic.rounds is map && d.basic.rounds.size() <= 60
+    && d.basic.recent is map && d.basic.recent.size() <= 60;
+  }
+  match /users/{uid}/children/{childId} {
+   allow read: if owner(uid);
+   allow create: if owner(uid) && validChild(request.resource.data)
+    && request.resource.data.createdAt == request.time;
+   allow update: if owner(uid) && validChild(request.resource.data)
+    && request.resource.data.createdAt == resource.data.createdAt;
+   // El borrado se habilitará junto a su interfaz y confirmación explícita.
+   allow delete: if false;
+  }
+ }
+}
